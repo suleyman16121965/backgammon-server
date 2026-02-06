@@ -195,11 +195,9 @@ CGameSingle.prototype.onClickedTriangle = function(aPossibleMove){
             this.afterMove();
 socket.send(JSON.stringify({
     type: "move",
-    from: fromTriangle,
-    to: toTriangle
-}));
-
-            
+    from: this._CurrentPiece.getTriangle(),   // taşın eski yeri
+    to: iCell                                  // hedef üçgen
+}));        
         }
     }
 
