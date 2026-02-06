@@ -193,6 +193,13 @@ CGameSingle.prototype.onClickedTriangle = function(aPossibleMove){
             this._oCurrentPiece.movePieceOnBoard(this._aTriangle[iCell].getX(),this._aTriangle[iCell].getY());
         }else{
             this.afterMove();
+socket.send(JSON.stringify({
+    type: "move",
+    from: fromTriangle,
+    to: toTriangle
+}));
+
+            
         }
     }
 
