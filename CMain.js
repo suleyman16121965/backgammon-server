@@ -1,3 +1,4 @@
+let socket;
 function CMain(oData){
     var _bUpdate;
     var _iCurResource = 0;
@@ -53,7 +54,17 @@ function CMain(oData){
             s_oMain._initSounds();
         }
     };
-    
+    socket = new WebSocket("wss://senin-server-url"); 
+// Render URL veya kendi domainin
+
+socket.onmessage = function(event){
+    const data = JSON.parse(event.data);
+
+    if(data.type === "move"){
+        s_oGame.applyRemoteMove(data.from, data.to);
+    }
+};
+
     
     this.soundLoaded = function(){
         _iCurResource++;
@@ -338,4 +349,5 @@ var s_oStage;
 var s_oMain;
 var s_oSpriteLibrary;
 var s_oCanvas;
+
 var s_aSounds;
