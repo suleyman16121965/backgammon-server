@@ -54,7 +54,8 @@ function CMain(oData){
             s_oMain._initSounds();
         }
     };
-    socket = new WebSocket("wss://senin-server-url"); 
+    socket = new WebSocket("wss://backgammon-server-skhn.onrender.com");
+
 // Render URL veya kendi domainin
 
 socket.onmessage = function(event){
@@ -351,3 +352,4 @@ var s_oSpriteLibrary;
 var s_oCanvas;
 
 var s_aSounds;
+
