@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Backgammon Multiplayer</title>
+
+  <!-- URL PARAMETRELERİ -->
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    window.player1Name = urlParams.get("player1") || "Player 1";
+    window.player2Name = urlParams.get("player2") || "Player 2";
+    window.roomName   = urlParams.get("room")   || "ROOM";
+
+    const room     = window.roomName;
+    const username = urlParams.get("username") || "Unknown";
+    const city     = urlParams.get("city")     || "Unknown";
+  </script>
+
+  <!-- OYUN KÜTÜPHANELERİ -->
+  <script src="js/lib/createjs.min.js"></script>
+  <script src="js/lib/screenfull.min.js"></script>
+  <script src="js/lib/platform.js"></script>
+  <script src="js/lib/ios_fullscreen.js"></script>
+  <script src="js/lib/howler.min.js"></script>
+  <script src="js/lib/ctl_utils.js"></script>
+  <script src="js/lib/sprite_lib.js"></script>
+  <script src="js/lib/CToggle.js"></script>
+  <script src="js/lib/CGfxButton.js"></script>
+  <script src="js/lib/CTextButton.js"></script>
+  <script src="js/lib/CCTLText.js"></script>
+  <script src="js/lib/sprintf.js"></script>
+  <script src="js/lib/CTimeout.js"></script>
+
+  <!-- OYUN MOTORU -->
+  <script src="js/settings.js"></script>
+  <script src="js/CLang.js"></script>
+  <script src="js/CPreloader.js"></script>
+  <script src="js/CMain.js"></script>
+  <script src="js/CMenu.js"></script>
+  <script src="js/CGameBase.js"></script>
+  <script src="js/CGameSingle.js"></script>
+  <script src="js/CInterface.js"></script>
+  <script src="js/CCreditsPanel.js"></script>
+  <script src="js/CAreYouSurePanel.js"></script>
+  <script src="js/CEndPanel.js"></script>
+  <script src="js/CSelectPlayers.js"></script>
+  <script src="js/CAlertBox.js"></script>
+  <script src="js/CThinking.js"></script>
+  <script src="js/CPiece.js"></script>
+  <script src="js/CTriangle.js"></script>
+  <script src="js/CBar.js"></script>
+  <script src="js/CDices.js"></script>
+  <script src="js/CVerticalText.js"></script>
+  <script src="js/CRuleFilter.js"></script>
+  <script src="js/CMoveTimeController.js"></script>
+  <script src="js/CButMenu.js"></script>
+
+  <!-- WEBSOCKET BAĞLANTISI -->
+  <script>
+    const socket = new WebSocket("wss://sahraba-multiplayer.onrender.com");
+
+    socket.addEventListener("open", () => {
+      console.log("✅ WebSocket bağlandı");
+
+      socket.send(JSON.stringify({
+        type: "join",
+        room: room,
+        user: username,
+        city: city
+      }));
+    });
+
+    socket.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      console.log("📩 WS:", data);
+
+      // Rakip hamlesi geldiğinde oyuna uygula
+      if (data.type === "move" && data.player !== username) {
+        if (window.s_oGame && s_oGame.applyRemoteMove) {
+          s_oGame.applyRemoteMove(data.from, data.to);
+        }
+      }
+    });
+  </script>
+
+  <!-- STYLES -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/orientation_utils.css">
+  <link rel="stylesheet" href="css/ios_fullscreen.css">
+</head>
+
+<body ondragstart="return false;" ondrop="return false;">
+
+  <!-- OYUN BAŞLATMA -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      window.s_oGame = null;
+
+      var oMain = new CMain({
+        fullscreen: true,
+        audio_enable_on_startup: false,
+        check_orientation: true
+      });
+
+      document.addEventListener("start_session", function(evt){});
+      document.addEventListener("end_session", function(evt){});
+      document.addEventListener("save_score", function(evt){});
+      document.addEventListener("show_interlevel_ad", function(evt){});
+      document.addEventListener("show_preroll_ad", function(evt){});
+      document.addEventListener("share_event", function(evt){});
+
+      if (isIOS()) {
+        setTimeout(sizeHandler, 200);
+      } else {
+        sizeHandler();
+      }
+    });
+  </script>
+
+  <!-- CANVAS -->
+  <canvas id="canvas" width="1360" height="840"></canvas>
+
+  <div data-orientation="landscape" class="orientation-msg-container">
+    <p class="orientation-msg-text">Please rotate your device</p>
+  </div>
+
+</body>
+</html>
