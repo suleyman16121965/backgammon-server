@@ -240,3 +240,18 @@ CGameSingle.prototype.gameOver = function(iWinner){
     this._oEndPanel.show(szMsgText,this._iScore,iWinner);
     this._oEndPanel.showButtons();
 };
+CGameSingle.prototype.applyRemoteMove = function(fromTriangle, toTriangle){
+    const piece = this._aTriangle[fromTriangle].getLastPiece();
+    if (!piece) {
+        console.warn("Rakip hamlesi: kaynakta taş yok");
+        return;
+    }
+
+    piece.setClicked(false);
+    piece.setTriangle(toTriangle);
+    this._aTriangle[toTriangle].addPiece(this._aTriangle[fromTriangle].removePiece());
+
+    piece.movePieceOnBoard(this._aTriangle[toTriangle].getX(), this._aTriangle[toTriangle].getY());
+
+    this.afterMove();
+};
