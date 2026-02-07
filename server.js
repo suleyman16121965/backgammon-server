@@ -1,10 +1,15 @@
+import http from "http";
 import { WebSocketServer } from "ws";
 
-const wss = new WebSocketServer({ port: process.env.PORT || 3000 });
+const server = http.createServer(); // Render'ın istediği HTTP server
+
+const wss = new WebSocketServer({ server }); // WS HTTP server'a bağlanıyor
 
 let rooms = {};
 
 wss.on("connection", (ws) => {
+  console.log("Client connected");
+
   ws.on("message", (msg) => {
     const data = JSON.parse(msg);
 
@@ -15,8 +20,10 @@ wss.on("connection", (ws) => {
     }
 
     if (data.type === "move") {
-      rooms[ws.room].forEach((client) => {
-        if (client !== ws) client.send(JSON.stringify(data));
+      rooms[ws.room]?.forEach((client) => {
+        if (client !== ws && client.readyState === 1) {
+          client.send(JSON.stringify(data));
+        }
       });
     }
   });
@@ -28,4 +35,9 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("Backgammon server running...");
+// Render burada portu veriyor
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log("WebSocket server running on port " + PORT);
+});
